@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Next Generation AI Analysis - Coming Soon">
+    <title>Coming Soon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-primary: #09090e;
+            --accent-main: #9333ea;
+            --accent-glow: #b794f6;
+            --fg-secondary: #a1a1aa;
+            --fg-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.08);
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: #fff;
+            font-family: var(--font-main);
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        /* ── Ambient lights ── */
+        .ambient-light {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(130px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .ambient-1 {
+            width: 500px; height: 500px;
+            background: rgba(147, 51, 234, 0.35);
+            top: -15%; left: -10%;
+        }
+        .ambient-2 {
+            width: 600px; height: 600px;
+            background: rgba(59, 130, 246, 0.15);
+            bottom: -25%; right: -10%;
+        }
+        .ambient-3 {
+            width: 700px; height: 300px;
+            background: rgba(147, 51, 234, 0.1);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: centerPulse 6s ease-in-out infinite;
+        }
+        @keyframes centerPulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1);    }
+            50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.12); }
+        }
+
+        /* ── Grid overlay ── */
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse 70% 70% at center, black 0%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 70% at center, black 0%, transparent 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ── Content ── */
+        .content {
+            position: relative;
+            z-index: 10;
+            max-width: 660px;
+            width: 90%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ── Heading ── */
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1.18;
+            margin-bottom: 1.6rem;
+        }
+
+        /* ── EXTRAORDINARY ──
+           A bright highlight slides L→R over a dark-purple base.
+           gradient: [dark] [dark] [bright zone] [dark] [dark]
+           We shift background-position from right→left so the bright
+           zone travels left-to-right across the text.
+           The gradient repeats identically at 0% and 100% so the
+           loop is perfectly seamless with no flash or jump.
+        ── */
+        .glow-wrap {
+            display: inline-block;
+            position: relative;
+        }
+
+        .glow-text {
+            display: inline-block;
+            /* 5-stop gradient: base → base → highlight → base → base */
+            background: linear-gradient(
+                90deg,
+                #6b21a8   0%,
+                #7c3aed  30%,
+                #ede9fe  50%,
+                #7c3aed  70%,
+                #6b21a8 100%
+            );
+            /* 3× wide so the bright zone occupies 1/3 of the strip;
+               animating from 200% → 0% moves highlight cleanly L→R */
+            background-size: 300% 100%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            animation: sweepLR 5s ease-in-out infinite;
+        }
+
+        /* Seamless L→R sweep: start with highlight off-screen right, end off-screen left */
+        @keyframes sweepLR {
+            0%   { background-position: 200% center; }
+            100% { background-position: -100% center; }
+        }
+
+        /* Blurred glow halo — same gradient, same timing, perfect sync */
+        .glow-wrap::before {
+            content: 'Extraordinary';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent  0%,
+                #9333ea     30%,
+                #e9d5ff     50%,
+                #9333ea     70%,
+                transparent 100%
+            );
+            background-size: 300% 100%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            filter: blur(22px);
+            animation: sweepLR 5s ease-in-out infinite, haloFade 5s ease-in-out infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Halo fades in as highlight arrives, fades out as it leaves */
+        @keyframes haloFade {
+            0%        { opacity: 0.15; }
+            35%, 65%  { opacity: 0.9;  }
+            100%      { opacity: 0.15; }
+        }
+
+        /* ── Subtitle ── */
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--fg-secondary);
+            line-height: 1.75;
+            max-width: 460px;
+            font-weight: 400;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            font-size: 0.82rem;
+            color: var(--fg-muted);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            margin-top: 2.5rem;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.8rem; }
+            p.subtitle { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light ambient-1"></div>
+    <div class="ambient-light ambient-2"></div>
+    <div class="ambient-light ambient-3"></div>
+    <div class="grid-overlay"></div>
+
+    <main class="content">
+
+        <h1>Something <span class="glow-wrap"><span class="glow-text">Extraordinary</span></span> is coming.</h1>
+
+        <p class="subtitle">
+            We’re building something made just for you.
+        </p>
+
+        <div class="footer">© 2026 FaceAid Labs</div>
+
+    </main>
+
+</body>
+</html>
