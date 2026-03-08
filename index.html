@@ -2,13 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Attempts to fix "Unsecure Connection" by forcing HTTPS -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
     <meta name="description" content="Next Generation AI Analysis - Coming Soon">
     <title>Coming Soon</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- display=block ensures text stays invisible until this font is loaded, avoiding ugly default font flashes -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=block" rel="stylesheet">
 
     <style>
         :root {
@@ -30,54 +35,63 @@
             user-select: none;
         }
 
-        body {
+        html, body {
             background-color: var(--bg-primary);
             color: #fff;
             font-family: var(--font-main);
             width: 100vw;
-            height: 100vh;
+            /* 100dvh fixes iPhone centering by accounting for the address bar */
+            height: 100dvh; 
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            position: fixed;
-            top: 0; left: 0;
+            position: relative;
         }
 
         /* ── Ambient lights ── */
         .ambient-light {
-            position: absolute;
+            position: fixed;
             border-radius: 50%;
             filter: blur(130px);
             pointer-events: none;
             z-index: 0;
+            /* Hardware acceleration for smoother loading */
+            transform: translateZ(0); 
         }
         .ambient-1 {
-            width: 500px; height: 500px;
+            width: 50vw; height: 50vw;
+            max-width: 500px; max-height: 500px;
             background: rgba(147, 51, 234, 0.35);
             top: -15%; left: -10%;
         }
         .ambient-2 {
-            width: 600px; height: 600px;
+            width: 60vw; height: 60vw;
+            max-width: 600px; max-height: 600px;
             background: rgba(59, 130, 246, 0.15);
             bottom: -25%; right: -10%;
         }
         .ambient-3 {
-            width: 700px; height: 300px;
+            width: 70vw; height: 30vw;
+            max-width: 700px; max-height: 300px;
             background: rgba(147, 51, 234, 0.1);
             top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) translateZ(0);
             animation: centerPulse 6s ease-in-out infinite;
         }
+        
         @keyframes centerPulse {
-            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1);    }
-            50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.12); }
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1) translateZ(0); }
+            50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.12) translateZ(0); }
         }
 
         /* ── Grid overlay ── */
         .grid-overlay {
-            position: absolute;
+            position: fixed;
             inset: 0;
+            width: 100vw;
+            height: 100dvh;
             background-image:
                 linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
@@ -88,7 +102,7 @@
             pointer-events: none;
         }
 
-        /* ── Content ── */
+        /* ── Content (Hidden until font loads) ── */
         .content {
             position: relative;
             z-index: 10;
@@ -98,6 +112,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            
+            /* Hidden initially, NO slide/fade animation */
+            visibility: hidden;
+        }
+
+        /* Triggered instantly via JS when font is ready */
+        .content.visible {
+            visibility: visible;
         }
 
         /* ── Heading ── */
@@ -109,14 +131,7 @@
             margin-bottom: 1.6rem;
         }
 
-        /* ── EXTRAORDINARY ──
-           A bright highlight slides L→R over a dark-purple base.
-           gradient: [dark] [dark] [bright zone] [dark] [dark]
-           We shift background-position from right→left so the bright
-           zone travels left-to-right across the text.
-           The gradient repeats identically at 0% and 100% so the
-           loop is perfectly seamless with no flash or jump.
-        ── */
+        /* ── EXTRAORDINARY ── */
         .glow-wrap {
             display: inline-block;
             position: relative;
@@ -124,7 +139,6 @@
 
         .glow-text {
             display: inline-block;
-            /* 5-stop gradient: base → base → highlight → base → base */
             background: linear-gradient(
                 90deg,
                 #6b21a8   0%,
@@ -133,23 +147,26 @@
                 #7c3aed  70%,
                 #6b21a8 100%
             );
-            /* 3× wide so the bright zone occupies 1/3 of the strip;
-               animating from 200% → 0% moves highlight cleanly L→R */
             background-size: 300% 100%;
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
             -webkit-text-fill-color: transparent;
             animation: sweepLR 5s ease-in-out infinite;
+            
+            /* Padding fixes both the bottom AND right edge of the 'y' getting cut off */
+            padding-bottom: 0.15em; 
+            margin-bottom: -0.15em; 
+            padding-right: 0.15em;
+            margin-right: -0.15em;
+            line-height: 1.25; 
         }
 
-        /* Seamless L→R sweep: start with highlight off-screen right, end off-screen left */
         @keyframes sweepLR {
             0%   { background-position: 200% center; }
             100% { background-position: -100% center; }
         }
 
-        /* Blurred glow halo — same gradient, same timing, perfect sync */
         .glow-wrap::before {
             content: 'Extraordinary';
             position: absolute;
@@ -172,9 +189,13 @@
             animation: sweepLR 5s ease-in-out infinite, haloFade 5s ease-in-out infinite;
             z-index: -1;
             pointer-events: none;
+            
+            /* Match the safety padding */
+            line-height: 1.25;
+            padding-bottom: 0.15em;
+            padding-right: 0.15em;
         }
 
-        /* Halo fades in as highlight arrives, fades out as it leaves */
         @keyframes haloFade {
             0%        { opacity: 0.15; }
             35%, 65%  { opacity: 0.9;  }
@@ -199,10 +220,10 @@
             margin-top: 2.5rem;
         }
 
-        /* ── Mobile ── */
+        /* ── Mobile Optimization ── */
         @media (max-width: 600px) {
             h1 { font-size: 2.8rem; }
-            p.subtitle { font-size: 1rem; }
+            p.subtitle { font-size: 1rem; padding: 0 10px; }
         }
     </style>
 </head>
@@ -213,17 +234,30 @@
     <div class="ambient-light ambient-3"></div>
     <div class="grid-overlay"></div>
 
-    <main class="content">
-
+    <main class="content" id="main-content">
         <h1>Something <span class="glow-wrap"><span class="glow-text">Extraordinary</span></span> is coming.</h1>
-
         <p class="subtitle">
             We’re building something made just for you.
         </p>
-
         <div class="footer">© 2026 FaceAid Labs</div>
-
     </main>
 
+    <!-- Script to ensure font is perfectly loaded BEFORE showing text instantly -->
+    <script>
+        const revealContent = () => {
+            document.getElementById('main-content').classList.add('visible');
+        };
+
+        // Wait for the specific Plus Jakarta Sans font to be ready
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(revealContent);
+        } else {
+            // Fallback for older browsers
+            window.addEventListener('load', revealContent);
+        }
+
+        // Failsafe: if font takes longer than 1.5s, force show it anyway so site doesn't stay blank
+        setTimeout(revealContent, 1500);
+    </script>
 </body>
 </html>
